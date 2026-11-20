@@ -2,11 +2,40 @@
   "name": "create-qa-suite",
   "version": "1.0.0",
   "description": "Create, update and delete Playwright UI, API and access-control test coverage from the command line.",
-  "type": "module",
+  "keywords": [
+    "playwright",
+    "test-automation",
+    "qa",
+    "api-testing",
+    "ui-testing",
+    "access-control",
+    "scaffold",
+    "cli"
+  ],
+  "homepage": "https://github.com/Husseinbaashen94/create-qa-suite#readme",
+  "bugs": "https://github.com/Husseinbaashen94/create-qa-suite/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Husseinbaashen94/create-qa-suite.git",
+    "directory": "packages/create-qa-suite"
+  },
   "license": "MIT",
   "author": "Hussein Baashen",
-  "engines": { "node": ">=22" },
-  "files": ["dist", "template"],
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "create-qa-suite": "dist/cli/create.js"
+  },
+  "exports": {
+    "./cli": "./dist/cli/main.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "template"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

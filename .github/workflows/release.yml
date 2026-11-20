@@ -1,0 +1,41 @@
+name: Release
+
+# Publishes create-qa-suite, update-qa-suite and delete-qa-suite to npm when a version tag is pushed.
+# Needs the NPM_TOKEN repository secret (an npm automation token).
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write # npm provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: The tag matches all three package versions
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          for p in create-qa-suite update-qa-suite delete-qa-suite; do
+            v="$(node -p "require('./packages/$p/package.json').version")"
+            [ "$v" = "$tag" ] || { echo "$p is $v but the tag is v$tag"; exit 1; }
+          done
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+      - run: bash scripts/pack-test.sh
+      - name: Publish (create-qa-suite first: the other two depend on it)
+        run: |
+          for p in create-qa-suite update-qa-suite delete-qa-suite; do
+            npm publish --provenance --access public --workspace "packages/$p"
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

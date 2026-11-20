@@ -1,0 +1,34 @@
+{
+  "name": "delete-qa-suite",
+  "version": "1.0.0",
+  "description": "Remove a feature's Playwright UI, API and access-control coverage, keeping everything other features still use.",
+  "keywords": [
+    "playwright",
+    "test-automation",
+    "qa",
+    "cli"
+  ],
+  "homepage": "https://github.com/Husseinbaashen94/create-qa-suite#readme",
+  "bugs": "https://github.com/Husseinbaashen94/create-qa-suite/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Husseinbaashen94/create-qa-suite.git",
+    "directory": "packages/delete-qa-suite"
+  },
+  "license": "MIT",
+  "author": "Hussein Baashen",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "delete-qa-suite": "bin.js"
+  },
+  "files": [
+    "bin.js",
+    "README.md"
+  ],
+  "dependencies": {
+    "create-qa-suite": "1.0.0"
+  }
+}
