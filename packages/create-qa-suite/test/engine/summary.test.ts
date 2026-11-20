@@ -10,7 +10,7 @@ describe('renderSummary', () => {
       [],
     );
     expect(text).toContain('~ coverage/bookings/api.json');
-    expect(text).toContain('checks[0].expect.status: 200 → 201');
+    expect(text).toContain('checks[a].expect.status: 200 → 201');
   });
 
   it('marks created and deleted files, and shows added and removed values', () => {
@@ -33,3 +33,23 @@ describe('renderSummary', () => {
     expect(renderSummary([], [])).toContain('Nothing to change');
   });
 });
+
+describe('renderSummary: lists', () => {
+  it('matches items by id, so removing one does not look like every later item changed', () => {
+    const before = json({ rules: [{ id: 'r1', role: 'guest' }, { id: 'r2', role: 'admin' }, { id: 'r3', role: 'guest' }] });
+    const after = json({ rules: [{ id: 'r1', role: 'guest' }, { id: 'r3', role: 'staff' }, { id: 'r4', role: 'guest' }] });
+    const text = renderSummary([{ path: 'acl.json', before, after }], []);
+    expect(text).toContain('rules: removed r2');
+    expect(text).toContain('rules: added r4');
+    expect(text).toContain('rules[r3].role: "guest" → "staff"');
+    expect(text).not.toContain('rules[1]');
+  });
+
+  it('shows lists of plain values as added and removed values', () => {
+    const text = renderSummary([{ path: '.qa-suite.json', before: json({ features: ['login', 'cart', 'bookings'] }), after: json({ features: ['login', 'bookings', 'orders'] }) }], []);
+    expect(text).toContain('features: removed "cart"');
+    expect(text).toContain('features: added "orders"');
+    expect(text).not.toContain('features[1]');
+  });
+});
+
