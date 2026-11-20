@@ -54,7 +54,10 @@ export function scaffold(opts: { dir: string; name: string; uiBaseUrl: string; a
       ? workflow.replace('{{envFromSecrets}}', secrets.map((n) => `      ${n}: \${{ secrets.${n} }}`).join('\n'))
       : workflow.replace(/ {4}env:\n\{\{envFromSecrets\}\}\n/, ''),
   );
-  for (const [path, text] of files) files.set(path, text.replaceAll('{{name}}', opts.name));
+  const examplesNote = opts.examples
+    ? '\n   **Example features:** `login` and `cart` test [Sauce Demo](https://www.saucedemo.com) and `bookings` tests [Restful-Booker](https://restful-booker.herokuapp.com/apidoc/index.html), two public practice apps. Their demo logins (which both sites publish for anyone to use) were written to your `.env` by create-qa-suite. Delete the examples with `npx delete-qa-suite . --feature <name>` when you add your own.\n'
+    : '';
+  for (const [path, text] of files) files.set(path, text.replaceAll('{{name}}', opts.name).replaceAll('{{examplesNote}}', examplesNote));
   return files;
 }
 
