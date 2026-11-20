@@ -1,0 +1,8 @@
+# Public demo logins, printed on the practice sites themselves:
+# Sauce Demo lists its users on https://www.saucedemo.com and Restful-Booker documents admin/password123 in its API docs.
+# This file is written as .env (git-ignored) when the example features are included.
+SAUCE_STANDARD_USER=standard_user
+SAUCE_LOCKED_USER=locked_out_user
+SAUCE_PASSWORD=secret_sauce
+BOOKER_USERNAME=admin
+BOOKER_PASSWORD=password123

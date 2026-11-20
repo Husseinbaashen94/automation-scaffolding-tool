@@ -1,0 +1,4 @@
+{
+  "$schema": "../../schemas/acl.schema.json",
+  "rules": []
+}

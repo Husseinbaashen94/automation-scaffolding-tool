@@ -1,0 +1,200 @@
+{
+  "$schema": "../../schemas/endpoints.schema.json",
+  "endpoints": [
+    {
+      "id": "create-booking",
+      "method": "POST",
+      "path": "/booking",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "firstname": "Sally",
+          "lastname": "Brown",
+          "totalprice": 111,
+          "depositpaid": true,
+          "bookingdates": {
+            "checkin": "2026-01-01",
+            "checkout": "2026-01-05"
+          },
+          "additionalneeds": "Breakfast"
+        }
+      },
+      "response": {
+        "type": "object",
+        "required": [
+          "bookingid",
+          "booking"
+        ],
+        "properties": {
+          "bookingid": {
+            "type": "number"
+          },
+          "booking": {
+            "type": "object",
+            "required": [
+              "firstname",
+              "lastname",
+              "totalprice",
+              "depositpaid",
+              "bookingdates"
+            ],
+            "properties": {
+              "firstname": {
+                "type": "string"
+              },
+              "lastname": {
+                "type": "string"
+              },
+              "totalprice": {
+                "type": "number"
+              },
+              "depositpaid": {
+                "type": "boolean"
+              },
+              "bookingdates": {
+                "type": "object",
+                "required": [
+                  "checkin",
+                  "checkout"
+                ],
+                "properties": {
+                  "checkin": {
+                    "type": "string"
+                  },
+                  "checkout": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalneeds": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "get-booking",
+      "method": "GET",
+      "path": "/booking/{bookingId}",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        }
+      },
+      "response": {
+        "type": "object",
+        "required": [
+          "firstname",
+          "lastname",
+          "totalprice",
+          "depositpaid",
+          "bookingdates"
+        ],
+        "properties": {
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "totalprice": {
+            "type": "number"
+          },
+          "depositpaid": {
+            "type": "boolean"
+          },
+          "bookingdates": {
+            "type": "object",
+            "required": [
+              "checkin",
+              "checkout"
+            ],
+            "properties": {
+              "checkin": {
+                "type": "string"
+              },
+              "checkout": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalneeds": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "update-booking",
+      "method": "PUT",
+      "path": "/booking/{bookingId}",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "firstname": "Sally",
+          "lastname": "Brown",
+          "totalprice": 111,
+          "depositpaid": true,
+          "bookingdates": {
+            "checkin": "2026-01-01",
+            "checkout": "2026-01-05"
+          },
+          "additionalneeds": "Breakfast"
+        }
+      },
+      "response": {
+        "type": "object",
+        "required": [
+          "firstname",
+          "lastname",
+          "totalprice",
+          "depositpaid",
+          "bookingdates"
+        ],
+        "properties": {
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "totalprice": {
+            "type": "number"
+          },
+          "depositpaid": {
+            "type": "boolean"
+          },
+          "bookingdates": {
+            "type": "object",
+            "required": [
+              "checkin",
+              "checkout"
+            ],
+            "properties": {
+              "checkin": {
+                "type": "string"
+              },
+              "checkout": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalneeds": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "delete-booking",
+      "method": "DELETE",
+      "path": "/booking/{bookingId}"
+    }
+  ]
+}

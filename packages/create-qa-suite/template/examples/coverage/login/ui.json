@@ -1,0 +1,80 @@
+{
+  "$schema": "../../schemas/ui.schema.json",
+  "pages": [],
+  "checks": [
+    {
+      "id": "login-standard",
+      "title": "a standard user logs in and sees the products",
+      "role": "guest",
+      "start": "login",
+      "steps": [
+        {
+          "fill": "login.username",
+          "value": "env:SAUCE_STANDARD_USER"
+        },
+        {
+          "fill": "login.password",
+          "value": "env:SAUCE_PASSWORD"
+        },
+        {
+          "click": "login.login-button"
+        },
+        {
+          "url": "inventory"
+        },
+        {
+          "visible": "inventory.list"
+        }
+      ]
+    },
+    {
+      "id": "login-locked-out",
+      "title": "a locked-out user sees why they can't log in",
+      "role": "guest",
+      "start": "login",
+      "steps": [
+        {
+          "fill": "login.username",
+          "value": "env:SAUCE_LOCKED_USER"
+        },
+        {
+          "fill": "login.password",
+          "value": "env:SAUCE_PASSWORD"
+        },
+        {
+          "click": "login.login-button"
+        },
+        {
+          "text": "login.error",
+          "equals": "Epic sadface: Sorry, this user has been locked out."
+        },
+        {
+          "url": "login"
+        }
+      ]
+    },
+    {
+      "id": "login-wrong-password",
+      "title": "a wrong password is rejected",
+      "role": "guest",
+      "start": "login",
+      "steps": [
+        {
+          "fill": "login.username",
+          "value": "env:SAUCE_STANDARD_USER"
+        },
+        {
+          "fill": "login.password",
+          "value": "not-the-password"
+        },
+        {
+          "click": "login.login-button"
+        },
+        {
+          "text": "login.error",
+          "equals": "Epic sadface: Username and password do not match any user in this service"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "../../schemas/acl.schema.json",
+  "rules": [
+    {
+      "id": "login-guest-no-products",
+      "role": "guest",
+      "target": {
+        "page": "inventory"
+      },
+      "expect": {
+        "allowed": false,
+        "denied": "login.error"
+      }
+    },
+    {
+      "id": "login-standard-sees-products",
+      "role": "standard",
+      "target": {
+        "page": "inventory"
+      },
+      "expect": {
+        "allowed": true
+      }
+    }
+  ]
+}

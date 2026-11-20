@@ -1,0 +1,60 @@
+{
+  "$schema": "../../schemas/ui.schema.json",
+  "pages": [],
+  "checks": [
+    {
+      "id": "cart-add-one",
+      "title": "adding a product shows 1 in the cart badge",
+      "role": "standard",
+      "start": "inventory",
+      "steps": [
+        {
+          "click": "inventory.add-backpack"
+        },
+        {
+          "text": "inventory.cart-badge",
+          "equals": "1"
+        }
+      ]
+    },
+    {
+      "id": "cart-add-two",
+      "title": "adding two products shows 2 in the cart badge",
+      "role": "standard",
+      "start": "inventory",
+      "steps": [
+        {
+          "click": "inventory.add-backpack"
+        },
+        {
+          "click": "inventory.add-bike-light"
+        },
+        {
+          "text": "inventory.cart-badge",
+          "equals": "2"
+        }
+      ]
+    },
+    {
+      "id": "cart-remove",
+      "title": "removing the only product hides the cart badge",
+      "role": "standard",
+      "start": "inventory",
+      "steps": [
+        {
+          "click": "inventory.add-backpack"
+        },
+        {
+          "text": "inventory.cart-badge",
+          "equals": "1"
+        },
+        {
+          "click": "inventory.remove-backpack"
+        },
+        {
+          "hidden": "inventory.cart-badge"
+        }
+      ]
+    }
+  ]
+}

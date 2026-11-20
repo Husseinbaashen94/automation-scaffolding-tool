@@ -1,0 +1,69 @@
+{
+  "$schema": "../../schemas/acl.schema.json",
+  "rules": [
+    {
+      "id": "bookings-guest-cannot-update",
+      "role": "guest",
+      "setup": [
+        "bookings-create"
+      ],
+      "target": {
+        "endpoint": "update-booking",
+        "params": {
+          "bookingId": "{bookingId}"
+        }
+      },
+      "expect": {
+        "status": 403
+      }
+    },
+    {
+      "id": "bookings-guest-cannot-delete",
+      "role": "guest",
+      "setup": [
+        "bookings-create"
+      ],
+      "target": {
+        "endpoint": "delete-booking",
+        "params": {
+          "bookingId": "{bookingId}"
+        }
+      },
+      "expect": {
+        "status": 403
+      }
+    },
+    {
+      "id": "bookings-admin-can-update",
+      "role": "admin",
+      "setup": [
+        "bookings-create"
+      ],
+      "target": {
+        "endpoint": "update-booking",
+        "params": {
+          "bookingId": "{bookingId}"
+        }
+      },
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "id": "bookings-admin-can-delete",
+      "role": "admin",
+      "setup": [
+        "bookings-create"
+      ],
+      "target": {
+        "endpoint": "delete-booking",
+        "params": {
+          "bookingId": "{bookingId}"
+        }
+      },
+      "expect": {
+        "status": 201
+      }
+    }
+  ]
+}

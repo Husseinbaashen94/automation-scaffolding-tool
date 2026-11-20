@@ -1,0 +1,48 @@
+{
+  "$schema": "../../schemas/roles.schema.json",
+  "roles": [
+    {
+      "id": "standard",
+      "api": {
+        "type": "none"
+      },
+      "ui": {
+        "loginFlow": [
+          {
+            "goto": "login"
+          },
+          {
+            "fill": "login.username",
+            "value": "env:SAUCE_STANDARD_USER"
+          },
+          {
+            "fill": "login.password",
+            "value": "env:SAUCE_PASSWORD"
+          },
+          {
+            "click": "login.login-button"
+          },
+          {
+            "visible": "inventory.list"
+          }
+        ]
+      }
+    },
+    {
+      "id": "admin",
+      "api": {
+        "type": "cookie",
+        "login": {
+          "method": "POST",
+          "path": "/auth",
+          "body": {
+            "username": "env:BOOKER_USERNAME",
+            "password": "env:BOOKER_PASSWORD"
+          }
+        },
+        "tokenPath": "token",
+        "cookieName": "token"
+      }
+    }
+  ]
+}

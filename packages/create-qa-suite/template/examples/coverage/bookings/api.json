@@ -1,0 +1,80 @@
+{
+  "$schema": "../../schemas/api.schema.json",
+  "checks": [
+    {
+      "id": "bookings-create",
+      "title": "a guest can create a booking",
+      "endpoint": "create-booking",
+      "role": "guest",
+      "expect": {
+        "status": 200,
+        "values": {
+          "booking.firstname": "Sally",
+          "booking.totalprice": 111
+        }
+      },
+      "save": {
+        "bookingId": "bookingid"
+      }
+    },
+    {
+      "id": "bookings-read",
+      "title": "the new booking can be read back",
+      "endpoint": "get-booking",
+      "role": "guest",
+      "params": {
+        "bookingId": "{bookingId}"
+      },
+      "expect": {
+        "status": 200,
+        "values": {
+          "firstname": "Sally",
+          "bookingdates.checkin": "2026-01-01"
+        }
+      }
+    },
+    {
+      "id": "bookings-update",
+      "title": "an admin can update the booking",
+      "endpoint": "update-booking",
+      "role": "admin",
+      "params": {
+        "bookingId": "{bookingId}"
+      },
+      "body": {
+        "firstname": "Jim"
+      },
+      "expect": {
+        "status": 200,
+        "values": {
+          "firstname": "Jim",
+          "lastname": "Brown"
+        }
+      }
+    },
+    {
+      "id": "bookings-delete",
+      "title": "an admin can delete the booking",
+      "endpoint": "delete-booking",
+      "role": "admin",
+      "params": {
+        "bookingId": "{bookingId}"
+      },
+      "expect": {
+        "status": 201
+      }
+    },
+    {
+      "id": "bookings-read-deleted",
+      "title": "a deleted booking is gone",
+      "endpoint": "get-booking",
+      "role": "guest",
+      "params": {
+        "bookingId": "{bookingId}"
+      },
+      "expect": {
+        "status": 404
+      }
+    }
+  ]
+}
