@@ -1,0 +1,52 @@
+# {{name}}
+
+UI, API and access-control tests with [Playwright](https://playwright.dev), created with [create-qa-suite](https://www.npmjs.com/package/create-qa-suite).
+
+The tests are **driven by coverage files**: what to test lives in `coverage/` as JSON, and the specs in `tests/` read it. To follow a change in the application, change the coverage (by hand or with `update-qa-suite`), not the test code.
+
+## Getting started
+
+1. Install Node.js 22 or newer.
+2. Install dependencies and the browser (skip if `create-qa-suite` already did it):
+   ```bash
+   npm install
+   npx playwright install chromium
+   ```
+3. Copy `.env.example` to `.env` and fill in every value. Logins are only ever read from `.env`, which git ignores.
+4. Run the tests:
+   ```bash
+   npm test                 # everything
+   npm run test:api         # only API checks (also test:ui, test:acl)
+   npx playwright test --grep "@cart(?![\w-])"   # one feature
+   npm run report           # open the HTML report
+   ```
+
+## Where things are
+
+| Path | What it holds |
+|---|---|
+| `.qa-suite.json` | Base URLs and the list of features |
+| `coverage/_shared/roles.json` | Roles and how each logs in (credentials as `env:NAME`) |
+| `coverage/_shared/endpoints.json` | Every API endpoint, defined once: method, path, default request body, response schema |
+| `coverage/_shared/pages.json` | Pages used by several features, with their elements |
+| `coverage/<feature>/api.json` | API checks of a feature, run in order |
+| `coverage/<feature>/ui.json` | Pages and UI checks of a feature |
+| `coverage/<feature>/acl.json` | Access rules: role × endpoint or page → expected outcome |
+| `tests/custom/` | Your own hand-written tests; the tools never touch this folder |
+
+The JSON Schemas in `schemas/` give your editor autocomplete and catch mistakes before a run.
+
+## Changing coverage with the command line
+
+```bash
+npx create-qa-suite . --feature orders --endpoint "POST /orders" --status 201   # add a feature (as drafts)
+npx update-qa-suite . --feature bookings --endpoint "GET /booking/{bookingId}" --to "GET /bookings/{bookingId}"
+npx update-qa-suite . --feature login --page login --element login-button --locator '[data-test="sign-in"]'
+npx delete-qa-suite . --feature cart
+```
+
+Every command shows what it will change, writes all files or none, then runs the affected tests. Add `--dry-run` to only look. New coverage added with `--feature` is marked `"draft": true` and reported as to-do until you fill it in and remove the flag.
+
+## Continuous integration
+
+`.github/workflows/tests.yml` runs the suite on every push and pull request. Add each variable from `.env.example` as a repository secret (Settings → Secrets and variables → Actions).
