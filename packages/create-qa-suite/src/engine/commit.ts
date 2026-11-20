@@ -15,6 +15,7 @@ export async function commit(
   next: { project?: Project; files?: Map<string, string | null> },
   notes: string[],
   testFeatures: string[],
+  confirm?: () => Promise<boolean>,
 ): Promise<number> {
   const files = new Map<string, string | null>(next.files ?? []);
   if (next.project) {
@@ -28,6 +29,10 @@ export async function commit(
   if (ctx.values['dry-run']) {
     ctx.io.out('\nDry run: nothing was written.');
     return 0;
+  }
+  if (confirm && !(await confirm())) {
+    ctx.io.err('Nothing was deleted.');
+    return 2;
   }
   applyChanges(ctx.dir, changes);
   ctx.io.out(`\nWrote ${changes.length} file(s).`);
