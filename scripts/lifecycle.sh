@@ -25,6 +25,7 @@ expect_code 0 "create the example project" $CREATE "$DIR" --yes --skip-install
 (cd "$DIR" && npm install --no-audit --no-fund --silent && npx playwright install ${CI:+--with-deps} chromium >/dev/null)
 
 expect_code 0 "the new project passes" bash -c "cd '$DIR' && npx playwright test"
+expect_code 0 "adding a feature with nothing in it yet does not fail" $CREATE "$DIR" --feature checkout
 expect_code 1 "a wrong expected value fails the cart tests" $UPDATE "$DIR" --feature cart --page inventory --element cart-badge --expect text=9 --check cart-add-two
 expect_code 0 "putting it back passes" $UPDATE "$DIR" --feature cart --page inventory --element cart-badge --expect text=2 --check cart-add-two
 expect_code 1 "a wrong locator fails login and cart" $UPDATE "$DIR" --feature login --page login --element login-button --locator '[data-test="nope"]'

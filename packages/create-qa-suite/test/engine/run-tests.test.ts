@@ -17,7 +17,7 @@ describe('runFeatureTests', () => {
       return Promise.resolve(3);
     };
     expect(await runFeatureTests('/p', ['cart'], spawn)).toBe(1);
-    expect(calls).toEqual([['npx', ['playwright', 'test', '--grep', '(@cart)(?![\\w-])'], '/p']]);
+    expect(calls).toEqual([['npx', ['playwright', 'test', '--pass-with-no-tests', '--grep', '(@cart)(?![\\w-])'], '/p']]);
     expect(await runFeatureTests('/p', ['cart'], () => Promise.resolve(0))).toBe(0);
   });
 

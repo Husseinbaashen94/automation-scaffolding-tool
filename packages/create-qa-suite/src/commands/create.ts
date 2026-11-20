@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { CommandContext, CommandSpec } from '../cli/command.js';
@@ -54,10 +54,13 @@ export function scaffold(opts: { dir: string; name: string; uiBaseUrl: string; a
       ? workflow.replace('{{envFromSecrets}}', secrets.map((n) => `      ${n}: \${{ secrets.${n} }}`).join('\n'))
       : workflow.replace(/ {4}env:\n\{\{envFromSecrets\}\}\n/, ''),
   );
+  const envStep = opts.examples
+    ? '3. Your `.env` already holds the demo logins the example features use (see below), so the tests run straight away. When you add roles of your own, add their variables to `.env.example` (with empty values) and to `.env`.'
+    : '3. Copy `.env.example` to `.env` and fill in every value. Logins are only ever read from `.env`, which git ignores.';
   const examplesNote = opts.examples
     ? '\n   **Example features:** `login` and `cart` test [Sauce Demo](https://www.saucedemo.com) and `bookings` tests [Restful-Booker](https://restful-booker.herokuapp.com/apidoc/index.html), two public practice apps. Their demo logins (which both sites publish for anyone to use) were written to your `.env` by create-qa-suite. Delete the examples with `npx delete-qa-suite . --feature <name>` when you add your own.\n'
     : '';
-  for (const [path, text] of files) files.set(path, text.replaceAll('{{name}}', opts.name).replaceAll('{{examplesNote}}', examplesNote));
+  for (const [path, text] of files) files.set(path, text.replaceAll('{{name}}', opts.name).replaceAll('{{examplesNote}}', examplesNote).replaceAll('{{envStep}}', envStep));
   return files;
 }
 
@@ -68,6 +71,7 @@ async function createProject(ctx: CommandContext): Promise<number> {
   if (existsSync(join(dir, '.qa-suite.json'))) {
     throw new UsageError(`${dir} is already a QA suite project. To add coverage for a feature, use --feature <name> (with --endpoint, --page or --rule).`);
   }
+  if (existsSync(dir) && !statSync(dir).isDirectory()) throw new UsageError(`${dir} is a file, not a folder. Choose a new folder name.`);
   if (existsSync(dir) && readdirSync(dir).length) throw new UsageError(`${dir} is not empty. Choose a new folder name.`);
   const interactive = io.isTTY && !values.yes;
   const ask = async (question: string, fallback: string) => (interactive ? (await io.ask(`${question} (${fallback}): `)) || fallback : fallback);
@@ -79,7 +83,14 @@ async function createProject(ctx: CommandContext): Promise<number> {
   const notes = examples ? ['The example features test the public practice apps Sauce Demo and Restful-Booker; their demo logins were written to .env (git-ignored).'] : [];
   await commit(ctx, { files }, notes, []);
   if (values['dry-run']) return 0;
-  if (!values['skip-install']) await ctx.deps.install(dir, io);
+  if (!values['skip-install']) {
+    try {
+      await ctx.deps.install(dir, io);
+    } catch (e) {
+      io.err(`The project was created in ${dir}, but installing failed: ${(e as Error).message}\nRun \`npm install\` and \`npx playwright install chromium\` in the project folder.`);
+      return 1;
+    }
+  }
   io.out(
     [
       '',
@@ -161,13 +172,20 @@ export function addFeature(p: Project, opts: AddFeatureOptions): { project: Proj
   };
   const params = (e: Endpoint) => (pathVars(e.path).length ? { params: Object.fromEntries(pathVars(e.path).map((v) => [v, FILL])) } : {});
 
+  const titles = new Set<string>();
+  const uniqueTitle = (t: string) => {
+    let title = t;
+    for (let n = 2; titles.has(title); n++) title = `${t} (${n})`;
+    titles.add(title);
+    return title;
+  };
   const api: ApiCheck[] = opts.endpoints.map((spec) => {
     const { method, path } = parseEndpoint(`${spec.method} ${spec.path}`);
     const role = spec.role ?? 'guest';
     checkRole(role);
     const e = endpointFor(method, path);
     const status = spec.status ?? 200;
-    const check: ApiCheck = { id: uniqueId(`${name}-${e.id}`, ids), title: `${method} ${path} as ${role} returns ${status}`, endpoint: e.id, role, ...params(e), expect: { status }, draft: true };
+    const check: ApiCheck = { id: uniqueId(`${name}-${e.id}`, ids), title: uniqueTitle(`${method} ${path} as ${role} returns ${status}`), endpoint: e.id, role, ...params(e), expect: { status }, draft: true };
     drafts.push(`coverage/${name}/api.json → ${check.id}: the title, path values (params), body overrides and expected values`);
     return check;
   });
@@ -223,7 +241,9 @@ async function addFeatureCommand(ctx: CommandContext): Promise<number> {
   const notes = drafts.length
     ? ['Drafts to fill in (each is reported as a to-do, not run, until you remove its "draft": true):', ...drafts.map((d) => `  - ${d}`)]
     : [`Feature "${values.feature}" added with empty coverage files to fill in.`];
-  return commit(ctx, { project: next }, notes, [values.feature]);
+  const added = next.features.at(-1)!;
+  const hasTests = added.api.length + added.ui.checks.length + added.acl.length > 0;
+  return commit(ctx, { project: next }, notes, hasTests ? [values.feature] : []);
 }
 
 export const createCommand: CommandSpec = {

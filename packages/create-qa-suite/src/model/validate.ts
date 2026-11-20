@@ -145,6 +145,16 @@ export function validateProject(p: Project): Problem[] {
     });
   }
   dupes(allIds, 'id', add);
+  for (const f of p.features) {
+    for (const [file, checks] of [[`coverage/${f.name}/api.json`, f.api], [`coverage/${f.name}/ui.json`, f.ui.checks]] as const) {
+      const seen = new Map<string, number>();
+      checks.forEach((c, i) => {
+        const first = seen.get(c.title);
+        if (first !== undefined) add(file, `checks[${i}].title`, `duplicate title "${c.title}" in this feature (also checks[${first}]): Playwright needs unique test titles`);
+        else seen.set(c.title, i);
+      });
+    }
+  }
   return problems;
 }
 

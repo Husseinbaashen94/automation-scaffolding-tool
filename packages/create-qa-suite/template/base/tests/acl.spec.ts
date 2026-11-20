@@ -7,6 +7,7 @@ import { expect, test } from '@playwright/test';
 import { runApiCheck, send } from '../support/api.js';
 import { apiCheck, coverage, findElement, findPage, tags } from '../support/coverage.js';
 import type { Value } from '../support/types.js';
+import { pagePattern } from '../support/steps.js';
 import { contextFor, openPage } from '../support/ui.js';
 
 const outcome = (e: { status: number } | { allowed: boolean }) => ('status' in e ? `gets ${e.status}` : e.allowed ? 'is allowed' : 'is denied');
@@ -16,7 +17,7 @@ for (const feature of coverage.features.filter((f) => f.acl.length)) {
     for (const rule of feature.acl) {
       const target = 'endpoint' in rule.target ? rule.target.endpoint : `page ${rule.target.page}`;
       const declare = rule.draft ? test.fixme : test;
-      declare(`${rule.role} ${outcome(rule.expect)} on ${target}`, async ({ request, browser }) => {
+      declare(`${rule.role} ${outcome(rule.expect)} on ${target} (${rule.id})`, async ({ request, browser }) => {
         const ctx = { env: process.env, saved: {} as Record<string, Value> };
         for (const id of rule.setup ?? []) await test.step(`setup: ${id}`, () => runApiCheck(request, apiCheck(id), ctx));
 
@@ -31,6 +32,8 @@ for (const feature of coverage.features.filter((f) => f.acl.length)) {
           if (rule.expect.allowed) await expect(marker, `${rule.role} sees ${target.id}`).toBeVisible();
           else {
             await expect(marker, `${rule.role} must not see ${target.id}`).toBeHidden();
+            // a hidden marker alone could be a stale locator or a page that never loaded: the browser must also have left the page
+            await expect(page, `${rule.role} is sent away from ${target.id}`).not.toHaveURL(pagePattern(target.path));
             if (rule.expect.denied) await expect(page.locator(findElement(rule.expect.denied)), `${rule.role} is shown ${rule.expect.denied}`).toBeVisible();
           }
           await page.context().close();

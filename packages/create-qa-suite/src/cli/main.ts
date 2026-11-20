@@ -58,13 +58,14 @@ export async function main(command: CommandSpec['name'], argv: string[], io: Io 
     return await spec.run({ dir, values, io, deps: { runTests: deps.runTests ?? runFeatureTests, install: deps.install ?? npmInstall } });
   } catch (e) {
     if (e instanceof UsageError) {
-      io.err(`${e.message}\n${hint}`);
+      io.err(e.showHint ? `${e.message}\n${hint}` : e.message);
       return 2;
     }
     if (e instanceof CoverageError) {
       io.err(`Nothing was changed. The coverage files have problems:\n${e.problems.map((p) => `  - ${p.file}${p.path ? ` ${p.path}` : ''}: ${p.message}`).join('\n')}`);
       return 2;
     }
-    throw e;
+    io.err(`Unexpected error: ${(e as Error).message ?? e}\nPlease report it at https://github.com/Husseinbaashen94/create-qa-suite/issues`);
+    return 2;
   }
 }

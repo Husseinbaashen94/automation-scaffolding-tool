@@ -15,6 +15,6 @@ export const featureGrep = (features: string[]) => `(${features.map((f) => `@${f
 /** Runs the tests of the given features with Playwright. Returns 0 if they pass, 1 if not. */
 export async function runFeatureTests(dir: string, features: string[], spawn: SpawnLike = defaultSpawn): Promise<number> {
   if (!features.length) return 0;
-  const code = await spawn('npx', ['playwright', 'test', '--grep', featureGrep(features)], { cwd: dir });
+  const code = await spawn('npx', ['playwright', 'test', '--pass-with-no-tests', '--grep', featureGrep(features)], { cwd: dir });
   return code === 0 ? 0 : 1;
 }

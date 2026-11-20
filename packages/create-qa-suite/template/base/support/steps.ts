@@ -17,6 +17,8 @@ export type StepAction = { describe: string } & (
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export const pageUrl = (baseUrl: string, path: string) => new URL(path, baseUrl.endsWith('/') ? baseUrl : baseUrl + '/').toString();
+/** Matches a full URL whose path is exactly `path` (query and fragment allowed). */
+export const pagePattern = (path: string) => new RegExp(`^[a-z]+://[^/]+${escape(path)}([?#].*)?$`);
 const show = (v: Value) => (typeof v === 'string' && v.startsWith('env:') ? v : JSON.stringify(v));
 
 /** Maps one coverage step to the Playwright call that performs or asserts it. */
@@ -24,7 +26,7 @@ export function stepToAction(step: Step, ctx: StepContext): StepAction {
   const str = (v: Value) => String(ctx.resolve(v));
   if ('goto' in step) return { kind: 'goto', url: pageUrl(ctx.baseUrl, ctx.page(step.goto)), describe: `open ${step.goto}` };
   if ('url' in step) {
-    return { kind: 'url', pattern: new RegExp(`^[a-z]+://[^/]+${escape(ctx.page(step.url))}([?#].*)?$`), describe: `the URL is the ${step.url} page` };
+    return { kind: 'url', pattern: pagePattern(ctx.page(step.url)), describe: `the URL is the ${step.url} page` };
   }
   if ('fill' in step) return { kind: 'action', selector: ctx.element(step.fill), method: 'fill', args: [str(step.value)], describe: `fill ${step.fill} with ${typeof step.value === 'string' && step.value.startsWith('env:') ? step.value : str(step.value)}` };
   if ('select' in step) return { kind: 'action', selector: ctx.element(step.select), method: 'selectOption', args: [str(step.value)], describe: `select ${show(step.value)} in ${step.select}` };

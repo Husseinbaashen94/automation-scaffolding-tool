@@ -120,7 +120,31 @@ export function schemaPaths(schema: Value | undefined, prefix = ''): string[] {
 
 /** Replaces a field path (or any path under it) with its renamed form; undefined if not under it. */
 export function renamePathPrefix(path: string, field: string, to: string): string | undefined {
-  if (path === field) return [...field.split('.').slice(0, -1), to].join('.');
-  if (path.startsWith(field + '.')) return [...field.split('.').slice(0, -1), to].join('.') + path.slice(field.length);
-  return undefined;
+  const v = path.split('.');
+  const f = field.split('.');
+  const isIndex = (s: string) => /^\d+$/.test(s);
+  let matched = 0;
+  let last = -1;
+  for (let j = 0; j < v.length && matched < f.length; j++) {
+    // list positions in a value path (items.0.id) don't appear in the schema path (items.id)
+    if (isIndex(v[j]!) && !isIndex(f[matched]!)) continue;
+    if (v[j] !== f[matched]) return undefined;
+    matched++;
+    last = j;
+  }
+  if (matched < f.length) return undefined;
+  const out = [...v];
+  out[last] = to;
+  return out.join('.');
+}
+
+/** Whether renaming the last segment of a path to `to` would land on a key that already exists. */
+export function renameCollides(obj: Value | undefined, path: string, to: string): boolean {
+  const p = parentOf(obj, path);
+  return !!p && p[1] in p[0] && to in p[0] && to !== p[1];
+}
+
+export function schemaRenameCollides(schema: JsonSchema | undefined, path: string, to: string): boolean {
+  const p = schemaParent(schema, path);
+  return !!p && isObj(p[0].properties) && to in (p[0].properties as Obj) && to !== p[1];
 }

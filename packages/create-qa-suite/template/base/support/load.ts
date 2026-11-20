@@ -45,7 +45,7 @@ export function loadCoverage(root: string): Project {
 
   const settings = read('.qa-suite.json');
   const shared = { roles: read('coverage/_shared/roles.json', { roles: [] }), endpoints: read('coverage/_shared/endpoints.json', { endpoints: [] }), pages: read('coverage/_shared/pages.json', { pages: [] }) };
-  const features: Feature[] = ((settings?.features ?? []) as string[]).map((name) => {
+  const features: Feature[] = (Array.isArray(settings?.features) ? (settings.features as unknown[]).filter((n): n is string => typeof n === 'string') : []).map((name) => {
     const api = read(`coverage/${name}/api.json`, { checks: [] });
     const ui = read(`coverage/${name}/ui.json`, { pages: [], checks: [] });
     const acl = read(`coverage/${name}/acl.json`, { rules: [] });

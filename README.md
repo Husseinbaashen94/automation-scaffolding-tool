@@ -49,8 +49,8 @@ Every command:
 | Exit code | Meaning |
 |---|---|
 | `0` | Done (and the tests passed, if they ran) |
-| `1` | Done, but the affected tests failed: the app or the coverage needs a look |
-| `2` | Nothing was changed: a usage error, invalid coverage, a target that doesn't exist, or a cancelled confirmation |
+| `1` | Done, but a step after writing failed: the affected tests (the app or the coverage needs a look), or installing a new project's dependencies |
+| `2` | Nothing was changed: a usage error, invalid coverage, a target that doesn't exist, a refused change, a cancelled confirmation, or files that couldn't be written |
 
 ### `create-qa-suite`: a new project, or a new feature
 
@@ -102,10 +102,10 @@ Name the feature you're working on, then describe the change in one of five shap
 
 | The app changed… | Command | What gets updated |
 |---|---|---|
-| **an endpoint** | `--endpoint "GET /booking/{id}" --to "GET /bookings/{id}"` (method, path or both) | The endpoint's single definition, plus renamed path variables in every check and access rule, **in every feature** |
+| **an endpoint** | `--endpoint "GET /booking/{id}" --to "GET /bookings/{id}"` (method, path or both) | The endpoint's single definition, plus renamed path variables in every check and access rule, **in every feature**, and the login of any role that logs in through it |
 | **a request payload** | `--endpoint create-booking --request-field firstname` with `--rename first_name`, `--remove`, `--add "nights=4"` or `--set "totalprice=150"` | The default body and every check's override (nested fields such as `bookingdates.checkin` too) |
 | **an element** | `--page login --element login-button --locator '[data-test="sign-in"]'` | The element's single definition. Every feature whose tests touch it is re-run, including features that log in through it |
-| **a response payload** | `--endpoint create-booking --response-field bookingid` with `--rename id`, `--remove` or `--add "nights:number"` | The response schema and its `required` list, every expected value, and every saved value that reads the field |
+| **a response payload** | `--endpoint create-booking --response-field bookingid` with `--rename id`, `--remove` or `--add "nights:number"` | The response schema and its `required` list, every expected value and saved value that reads the field (including inside lists, such as `0.bookingid`), and the `tokenPath` of roles that log in through it |
 | **an expected value** | API: `--endpoint get-booking --expect status=404` or `--expect "firstname=Jim"`. UI: `--page inventory --element cart-badge --expect text=3` (or `value=…`, `count=n`) | Only checks in the named feature. If they expect different values today, narrow it with `--check <id>` or `--from <current value>` |
 
 An endpoint change that renames a path variable:
@@ -151,7 +151,8 @@ Say which to change with --check <id> or --from <current value>.
 
 Some changes are refused because they can't be applied safely:
 - an endpoint change that adds or drops a path variable;
-- removing a response field that checks still assert (the checks are listed);
+- removing a response field that checks still assert or a role's login still reads (they are listed);
+- renaming a field onto a name that already exists;
 - an endpoint, page or element the feature doesn't use.
 
 ### `delete-qa-suite`: remove a feature's coverage
@@ -214,7 +215,7 @@ Every field is described in **[docs/coverage-format.md](docs/coverage-format.md)
 
 ## How it's tested
 
-**163 automated tests** (Vitest) cover:
+**181 automated tests** (Vitest) cover:
 - **Coverage model:** loading, validation of every cross-reference, invalid JSON reported with line and column. A test also proves the tool's dependency-free schema checker agrees with `ajv` on the shipped JSON Schemas.
 - **Generated runner:** value resolution, step mapping, coverage loading, the example coverage, and pinned template versions.
 - **Change engine:** all-or-nothing writes with rollback, the change summary, and selecting tests by feature tag.
@@ -223,7 +224,7 @@ Every field is described in **[docs/coverage-format.md](docs/coverage-format.md)
 
 **Mutation checks** were run while building. Disabling the rollback, path-variable renaming, saved-value renaming, login-flow propagation, the ambiguity refusal, endpoint reuse, or dependent-rule removal each makes at least one test fail.
 
-**CI** runs three jobs on every push, on pull requests, and weekly:
+**CI** runs three jobs on pushes to `main`, on pull requests, and weekly:
 
 | Job | What it proves |
 |---|---|

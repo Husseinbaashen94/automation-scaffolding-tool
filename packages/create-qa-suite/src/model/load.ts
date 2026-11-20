@@ -51,7 +51,7 @@ export function loadProject(dir: string): Project {
   const roles = readJson(dir, 'coverage/_shared/roles.json', problems, { roles: [] });
   const endpoints = readJson(dir, 'coverage/_shared/endpoints.json', problems, { endpoints: [] });
   const pages = readJson(dir, 'coverage/_shared/pages.json', problems, { pages: [] });
-  const features: Feature[] = ((settings?.features ?? []) as string[]).map((name) => {
+  const features: Feature[] = (Array.isArray(settings?.features) ? (settings.features as unknown[]).filter((n): n is string => typeof n === 'string') : []).map((name) => {
     const api = readJson(dir, `coverage/${name}/api.json`, problems, { checks: [] });
     const ui = readJson(dir, `coverage/${name}/ui.json`, problems, { pages: [], checks: [] });
     const acl = readJson(dir, `coverage/${name}/acl.json`, problems, { rules: [] });

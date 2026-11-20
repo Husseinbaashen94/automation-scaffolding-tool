@@ -2,11 +2,11 @@ import type { CommandContext, CommandSpec } from '../cli/command.js';
 import { UsageError } from '../cli/errors.js';
 import { commit } from '../engine/commit.js';
 import {
-  fieldPaths, hasField, parseEndpointRef, removeField, renameField, renamePathPrefix, SCHEMA_TYPES, schemaAddProperty,
-  schemaHasProperty, schemaPaths, schemaRemoveProperty, schemaRenameProperty, setField,
+  fieldPaths, hasField, parseEndpointRef, removeField, renameCollides, renameField, renamePathPrefix, SCHEMA_TYPES, schemaAddProperty,
+  schemaHasProperty, schemaPaths, schemaRemoveProperty, schemaRenameCollides, schemaRenameProperty, setField,
 } from '../engine/refs.js';
 import { loadProject } from '../model/load.js';
-import type { AclRule, AclTarget, ApiCheck, Endpoint, Project, Value } from '../model/types.js';
+import type { AclRule, AclTarget, ApiCheck, Endpoint, Project, Role, Value } from '../model/types.js';
 import { pathVars } from '../model/validate.js';
 import { planElementChange, planValueChange } from './update-ui.js';
 
@@ -26,6 +26,16 @@ export function usesOf(p: Project, endpointId: string): EndpointTarget[] {
 }
 
 const featuresOf = (uses: EndpointTarget[]) => [...new Set(uses.map((u) => u.feature))];
+
+type TokenRole = Role & { api: Extract<Role['api'], { login: unknown }> };
+/** Roles whose API login request is this endpoint (same method and path). */
+const loginRoles = (p: Project, e: Endpoint): TokenRole[] =>
+  p.roles.filter((r): r is TokenRole => 'login' in r.api && r.api.login.method.toUpperCase() === e.method && r.api.login.path === e.path);
+/** Features with any check or rule acting as one of these roles. */
+const featuresActingAs = (p: Project, roles: string[]) =>
+  p.features.filter((f) => [...f.api, ...f.ui.checks, ...f.acl].some((x) => roles.includes(x.role))).map((f) => f.name);
+/** Union of feature lists, in project order. */
+const ordered = (p: Project, ...lists: string[][]) => p.settings.features.filter((f) => lists.some((l) => l.includes(f)));
 const parseValue = (s: string): Value => {
   try {
     return JSON.parse(s);
@@ -63,14 +73,17 @@ export function planEndpointChange(p: Project, ref: string, to: string): UpdateR
     }
   }
   const was = `${e.method} ${e.path}`;
+  const logins = loginRoles(next, e);
   e.method = method as Endpoint['method'];
   e.path = path;
-  const affected = featuresOf(uses);
+  for (const r of logins) r.api.login = { ...r.api.login, method: e.method, path: e.path };
+  const affected = ordered(next, featuresOf(uses), featuresActingAs(next, logins.map((r) => r.id)));
   return {
     project: next,
     notes: [
       `Endpoint ${e.id}: ${was} → ${e.method} ${e.path}`,
       ...(renames.size ? [`Path variables renamed in ${uses.length} check(s) and rule(s): ${[...renames].map(([a, b]) => `{${a}} → {${b}}`).join(', ')}`] : []),
+      ...logins.map((r) => `Role ${r.id} logs in through it: its login now calls ${e.method} ${e.path}`),
       `Affected features: ${affected.join(', ') || '(none)'}`,
     ],
     affectedFeatures: affected,
@@ -89,6 +102,9 @@ export function planRequestField(p: Project, ref: string, op: FieldOp): UpdateRe
   let note: string;
   if ('rename' in op || 'remove' in op) {
     if (!exists) throw new UsageError(`No request field "${field}" on ${e.method} ${e.path}. Fields: ${known().join(', ') || '(none)'}`);
+    if ('rename' in op && [e.request?.body, ...overrides].some((b) => renameCollides(b, field, op.rename))) {
+      throw new UsageError(`Can't rename "${field}": "${op.rename}" already exists next to it in ${e.id}'s body or a check's override. Remove or rename that one first.`);
+    }
     const apply = 'rename' in op ? (b: Value | undefined) => renameField(b, field, op.rename) : (b: Value | undefined) => removeField(b, field);
     const inDefault = apply(e.request?.body);
     const inOverrides = overrides.filter((b) => apply(b)).length;
@@ -119,10 +135,14 @@ export function planResponseField(p: Project, ref: string, op: FieldOp): UpdateR
     ...Object.keys(c.expect.values ?? {}).filter((k) => renamePathPrefix(k, field, '_') !== undefined).map((k) => `${c.id}: expect.values.${k}`),
     ...Object.entries(c.save ?? {}).filter(([, v]) => renamePathPrefix(v, field, '_') !== undefined).map(([k]) => `${c.id}: save.${k}`),
   ]);
+  const logins = loginRoles(next, e);
+  readers.push(...logins.filter((r) => renamePathPrefix(r.api.tokenPath, field, '_') !== undefined).map((r) => `role ${r.id}: tokenPath`));
   let note: string;
   if ('rename' in op) {
     if (!schemaHasProperty(e.response, field)) throw new UsageError(`No response field "${field}" in ${e.id}'s schema. Fields: ${schemaPaths(e.response).join(', ')}`);
+    if (schemaRenameCollides(e.response, field, op.rename)) throw new UsageError(`Can't rename "${field}": "${op.rename}" already exists in ${e.id}'s schema.`);
     schemaRenameProperty(e.response, field, op.rename);
+    for (const r of logins) r.api.tokenPath = renamePathPrefix(r.api.tokenPath, field, op.rename) ?? r.api.tokenPath;
     for (const c of checks) {
       if (c.expect.values) c.expect.values = Object.fromEntries(Object.entries(c.expect.values).map(([k, v]) => [renamePathPrefix(k, field, op.rename) ?? k, v]));
       if (c.save) c.save = Object.fromEntries(Object.entries(c.save).map(([k, v]) => [k, renamePathPrefix(v, field, op.rename) ?? v]));
@@ -141,7 +161,7 @@ export function planResponseField(p: Project, ref: string, op: FieldOp): UpdateR
     if (!schemaAddProperty(e.response, field, type)) throw new UsageError(`The parent of "${field}" is not in ${e.id}'s schema. Fields: ${schemaPaths(e.response).join(', ')}`);
     note = `Response field ${field} (${type}) added to ${e.id}'s schema as required`;
   } else throw new UsageError('A response field takes --rename, --remove or --add name:type (not --set).');
-  const affected = featuresOf(usesOf(next, e.id));
+  const affected = ordered(next, featuresOf(usesOf(next, e.id)), featuresActingAs(next, logins.map((r) => r.id)));
   return { project: next, notes: [note, `Affected features: ${affected.join(', ') || '(none)'}`], affectedFeatures: affected };
 }
 

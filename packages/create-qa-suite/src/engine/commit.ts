@@ -1,4 +1,5 @@
 import type { CommandContext } from '../cli/command.js';
+import { UsageError } from '../cli/errors.js';
 import { CoverageError } from '../model/load.js';
 import { projectFiles } from '../model/serialize.js';
 import type { Project } from '../model/types.js';
@@ -34,7 +35,11 @@ export async function commit(
     ctx.io.err('Nothing was deleted.');
     return 2;
   }
-  applyChanges(ctx.dir, changes);
+  try {
+    applyChanges(ctx.dir, changes);
+  } catch (e) {
+    throw new UsageError(`Nothing was changed: the files could not be written (${(e as Error).message}).`, false);
+  }
   ctx.io.out(`\nWrote ${changes.length} file(s).`);
   if (ctx.values['no-run'] || !testFeatures.length) return 0;
   ctx.io.out(`\nRunning the tests of: ${testFeatures.join(', ')}\n`);
