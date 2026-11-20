@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ui.schema.json",
+  "title": "UI pages and checks of one feature (coverage/<feature>/ui.json)",
+  "type": "object",
+  "required": ["pages", "checks"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "pages": { "type": "array", "items": { "$ref": "common.schema.json#/definitions/page" } },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "role", "start", "steps"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "common.schema.json#/definitions/id" },
+          "title": { "type": "string", "minLength": 1 },
+          "role": { "$ref": "common.schema.json#/definitions/id" },
+          "start": { "$ref": "common.schema.json#/definitions/id" },
+          "steps": { "$ref": "common.schema.json#/definitions/steps" },
+          "draft": { "$ref": "common.schema.json#/definitions/draft" }
+        }
+      }
+    }
+  }
+}

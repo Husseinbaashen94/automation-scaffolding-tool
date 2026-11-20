@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "qa-suite.schema.json",
+  "title": "QA suite project settings (.qa-suite.json)",
+  "type": "object",
+  "required": ["toolVersion", "uiBaseUrl", "apiBaseUrl", "features"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "toolVersion": { "type": "string" },
+    "uiBaseUrl": { "type": "string" },
+    "apiBaseUrl": { "type": "string" },
+    "features": { "type": "array", "uniqueItems": true, "items": { "$ref": "common.schema.json#/definitions/id" } }
+  }
+}

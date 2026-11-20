@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "roles.schema.json",
+  "title": "Roles and how they log in (coverage/_shared/roles.json)",
+  "type": "object",
+  "required": ["roles"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "api"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "common.schema.json#/definitions/id" },
+          "api": {
+            "oneOf": [
+              { "type": "object", "required": ["type"], "additionalProperties": false, "properties": { "type": { "const": "none" } } },
+              {
+                "type": "object",
+                "required": ["type", "username", "password"],
+                "additionalProperties": false,
+                "properties": { "type": { "const": "basic" }, "username": { "type": "string" }, "password": { "type": "string" } }
+              },
+              {
+                "type": "object",
+                "required": ["type", "login", "tokenPath"],
+                "additionalProperties": false,
+                "properties": {
+                  "type": { "enum": ["bearer", "cookie"] },
+                  "login": {
+                    "type": "object",
+                    "required": ["method", "path"],
+                    "additionalProperties": false,
+                    "properties": { "method": { "$ref": "common.schema.json#/definitions/method" }, "path": { "$ref": "common.schema.json#/definitions/path" }, "body": {} }
+                  },
+                  "tokenPath": { "type": "string", "minLength": 1 },
+                  "cookieName": { "type": "string", "minLength": 1 }
+                }
+              }
+            ]
+          },
+          "ui": {
+            "type": "object",
+            "required": ["loginFlow"],
+            "additionalProperties": false,
+            "properties": { "loginFlow": { "$ref": "common.schema.json#/definitions/steps" } }
+          }
+        }
+      }
+    }
+  }
+}

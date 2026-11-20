@@ -1,0 +1,1 @@
+{ "rules": [ { "id": "r", "role": "guest", "target": { "page": "p", "endpoint": "e" }, "expect": { "status": 403 } } ] }

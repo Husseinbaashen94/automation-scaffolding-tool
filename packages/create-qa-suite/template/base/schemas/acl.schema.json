@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "acl.schema.json",
+  "title": "Access rules of one feature (coverage/<feature>/acl.json)",
+  "type": "object",
+  "required": ["rules"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "role", "target", "expect"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "common.schema.json#/definitions/id" },
+          "role": { "$ref": "common.schema.json#/definitions/id" },
+          "setup": { "type": "array", "items": { "$ref": "common.schema.json#/definitions/id" } },
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["endpoint"],
+                "additionalProperties": false,
+                "properties": { "endpoint": { "$ref": "common.schema.json#/definitions/id" }, "params": { "type": "object" }, "body": { "type": "object" } }
+              },
+              { "type": "object", "required": ["page"], "additionalProperties": false, "properties": { "page": { "$ref": "common.schema.json#/definitions/id" } } }
+            ]
+          },
+          "expect": {
+            "oneOf": [
+              { "type": "object", "required": ["status"], "additionalProperties": false, "properties": { "status": { "type": "integer", "minimum": 100, "maximum": 599 } } },
+              {
+                "type": "object",
+                "required": ["allowed"],
+                "additionalProperties": false,
+                "properties": { "allowed": { "type": "boolean" }, "denied": { "$ref": "common.schema.json#/definitions/elementRef" } }
+              }
+            ]
+          },
+          "draft": { "$ref": "common.schema.json#/definitions/draft" }
+        }
+      }
+    }
+  }
+}

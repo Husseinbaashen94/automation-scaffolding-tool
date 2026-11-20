@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "api.schema.json",
+  "title": "API checks of one feature (coverage/<feature>/api.json)",
+  "type": "object",
+  "required": ["checks"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "endpoint", "role", "expect"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "common.schema.json#/definitions/id" },
+          "title": { "type": "string", "minLength": 1 },
+          "endpoint": { "$ref": "common.schema.json#/definitions/id" },
+          "role": { "$ref": "common.schema.json#/definitions/id" },
+          "params": { "type": "object" },
+          "body": { "type": "object" },
+          "expect": {
+            "type": "object",
+            "required": ["status"],
+            "additionalProperties": false,
+            "properties": { "status": { "type": "integer", "minimum": 100, "maximum": 599 }, "values": { "$ref": "common.schema.json#/definitions/values" } }
+          },
+          "save": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } },
+          "draft": { "$ref": "common.schema.json#/definitions/draft" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/pages.schema.json",
+  "pages": [
+    {
+      "id": "login",
+      "path": "/",
+      "marker": "login-button",
+      "elements": {
+        "username": "[data-test=\"username\"]",
+        "password": "[data-test=\"password\"]",
+        "login-button": "[data-test=\"login-button\"]",
+        "error": "[data-test=\"error\"]"
+      }
+    }
+  ]
+}

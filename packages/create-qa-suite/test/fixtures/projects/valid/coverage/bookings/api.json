@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/api.schema.json",
+  "checks": [
+    {
+      "id": "bookings-create",
+      "title": "a guest can create a booking",
+      "endpoint": "create-booking",
+      "role": "guest",
+      "expect": {
+        "status": 200,
+        "values": {
+          "booking.firstname": "Sally"
+        }
+      },
+      "save": {
+        "bookingId": "bookingid"
+      }
+    },
+    {
+      "id": "bookings-read",
+      "title": "the new booking can be read back",
+      "endpoint": "get-booking",
+      "role": "guest",
+      "params": {
+        "bookingId": "{bookingId}"
+      },
+      "expect": {
+        "status": 200,
+        "values": {
+          "firstname": "Sally"
+        }
+      }
+    }
+  ]
+}

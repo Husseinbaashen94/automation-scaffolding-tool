@@ -1,0 +1,10 @@
+{
+  "$schema": "./schemas/qa-suite.schema.json",
+  "toolVersion": "1.0.0",
+  "uiBaseUrl": "https://www.saucedemo.com",
+  "apiBaseUrl": "https://restful-booker.herokuapp.com",
+  "features": [
+    "bookings",
+    "login"
+  ]
+}

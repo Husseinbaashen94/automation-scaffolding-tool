@@ -1,0 +1,15 @@
+{
+  "name": "create-qa-suite",
+  "version": "1.0.0",
+  "description": "Create, update and delete Playwright UI, API and access-control test coverage from the command line.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Hussein Baashen",
+  "engines": { "node": ">=22" },
+  "files": ["dist", "template"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  }
+}

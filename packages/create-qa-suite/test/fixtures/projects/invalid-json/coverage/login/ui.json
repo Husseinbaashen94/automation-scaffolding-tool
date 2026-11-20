@@ -1,0 +1,29 @@
+{
+  "$schema": "../../schemas/ui.schema.json",
+  "pages": [
+    {
+      "id": "inventory",
+      "path": "/inventory.html",
+      "marker": "list",
+      "elements": {
+        "list": "[data-test=\"inventory-list\"]"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "login-standard",
+      "title": "a standard user sees the inventory after logging in",
+      "role": "standard",
+      "start": "inventory",
+      "steps": [
+        {
+          "visible": "inventory.list"
+        },
+        {
+          "url": "inventory"
+        }
+      ]
+    }
+  ]
+}

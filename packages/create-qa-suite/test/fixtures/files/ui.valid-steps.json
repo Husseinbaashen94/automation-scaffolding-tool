@@ -1,0 +1,1 @@
+{ "pages": [], "checks": [ { "id": "a", "title": "t", "role": "guest", "start": "p", "steps": [ { "click": "p.b" }, { "text": "p.b", "equals": "x" }, { "count": "p.b", "equals": 2 } ] } ] }

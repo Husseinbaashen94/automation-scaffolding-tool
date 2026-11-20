@@ -1,0 +1,61 @@
+{
+  "$schema": "../../schemas/endpoints.schema.json",
+  "endpoints": [
+    {
+      "id": "create-booking",
+      "method": "POST",
+      "path": "/booking",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "firstname": "Sally",
+          "lastname": "Brown",
+          "totalprice": 111,
+          "depositpaid": true,
+          "bookingdates": {
+            "checkin": "2026-01-01",
+            "checkout": "2026-01-05"
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "required": [
+          "bookingid",
+          "booking"
+        ],
+        "properties": {
+          "bookingid": {
+            "type": "number"
+          },
+          "booking": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "id": "get-booking",
+      "method": "GET",
+      "path": "/booking/{bookingId}",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        }
+      },
+      "response": {
+        "type": "object",
+        "required": [
+          "firstname"
+        ],
+        "properties": {
+          "firstname": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

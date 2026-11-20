@@ -1,0 +1,1 @@
+{ "checks": [ { "id": "A", "title": "t", "endpoint": "e", "role": "guest", "expect": { "status": 200 } } ] }

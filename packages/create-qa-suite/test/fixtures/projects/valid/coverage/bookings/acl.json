@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/acl.schema.json",
+  "rules": [
+    {
+      "id": "bookings-guest-can-read",
+      "role": "guest",
+      "setup": [
+        "bookings-create"
+      ],
+      "target": {
+        "endpoint": "get-booking",
+        "params": {
+          "bookingId": "{bookingId}"
+        }
+      },
+      "expect": {
+        "status": 200
+      }
+    }
+  ]
+}
