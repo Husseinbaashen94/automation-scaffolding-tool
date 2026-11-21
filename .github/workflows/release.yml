@@ -32,7 +32,7 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: bash scripts/pack-test.sh
-      - name: Publish (create-qa-suite first: the other two depend on it)
+      - name: Publish create-qa-suite first, since the other two depend on it
         run: |
           for p in create-qa-suite update-qa-suite delete-qa-suite; do
             npm publish --provenance --access public --workspace "packages/$p"

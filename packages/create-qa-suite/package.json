@@ -12,11 +12,11 @@
     "scaffold",
     "cli"
   ],
-  "homepage": "https://github.com/Husseinbaashen94/create-qa-suite#readme",
-  "bugs": "https://github.com/Husseinbaashen94/create-qa-suite/issues",
+  "homepage": "https://github.com/Husseinbaashen94/automation-scaffolding-tool#readme",
+  "bugs": "https://github.com/Husseinbaashen94/automation-scaffolding-tool/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Husseinbaashen94/create-qa-suite.git",
+    "url": "git+https://github.com/Husseinbaashen94/automation-scaffolding-tool.git",
     "directory": "packages/create-qa-suite"
   },
   "license": "MIT",

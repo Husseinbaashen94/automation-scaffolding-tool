@@ -1,6 +1,6 @@
-# create-qa-suite
+# Automation Scaffolding Tool
 
-[![CI](https://github.com/Husseinbaashen94/create-qa-suite/actions/workflows/ci.yml/badge.svg)](https://github.com/Husseinbaashen94/create-qa-suite/actions/workflows/ci.yml)
+[![CI](https://github.com/Husseinbaashen94/automation-scaffolding-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/Husseinbaashen94/automation-scaffolding-tool/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/node-%3E%3D22-339933?logo=node.js&logoColor=white)
 ![Playwright](https://img.shields.io/badge/Playwright-UI%20%C2%B7%20API%20%C2%B7%20access%20control-2EAD33?logo=playwright&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue)
@@ -243,8 +243,8 @@ Every field is described in **[docs/coverage-format.md](docs/coverage-format.md)
 ## Run it from source
 
 ```bash
-git clone https://github.com/Husseinbaashen94/create-qa-suite.git
-cd create-qa-suite
+git clone https://github.com/Husseinbaashen94/automation-scaffolding-tool.git
+cd automation-scaffolding-tool
 npm install
 npm run build
 node packages/create-qa-suite/dist/cli/create.js ../my-shop

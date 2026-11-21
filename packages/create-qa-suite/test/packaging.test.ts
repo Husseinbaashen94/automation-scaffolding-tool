@@ -29,7 +29,7 @@ describe('the three npm packages', () => {
     for (const p of [main, pkg('update-qa-suite'), pkg('delete-qa-suite')]) {
       expect(p.license).toBe('MIT');
       expect(p.description.length).toBeGreaterThan(20);
-      expect(p.repository.url).toContain('github.com/Husseinbaashen94/create-qa-suite');
+      expect(p.repository.url).toContain('github.com/Husseinbaashen94/automation-scaffolding-tool');
     }
   });
 });

@@ -65,7 +65,7 @@ export async function main(command: CommandSpec['name'], argv: string[], io: Io 
       io.err(`Nothing was changed. The coverage files have problems:\n${e.problems.map((p) => `  - ${p.file}${p.path ? ` ${p.path}` : ''}: ${p.message}`).join('\n')}`);
       return 2;
     }
-    io.err(`Unexpected error: ${(e as Error).message ?? e}\nPlease report it at https://github.com/Husseinbaashen94/create-qa-suite/issues`);
+    io.err(`Unexpected error: ${(e as Error).message ?? e}\nPlease report it at https://github.com/Husseinbaashen94/automation-scaffolding-tool/issues`);
     return 2;
   }
 }
