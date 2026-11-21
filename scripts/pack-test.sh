@@ -12,11 +12,13 @@ for p in create-qa-suite update-qa-suite delete-qa-suite; do
 done
 
 TARBALL="$(ls "$WORK"/create-qa-suite-*.tgz)"
+# List once into a file: piping tar into grep -q breaks the pipe on Linux, which pipefail reports as a failure.
+tar -tzf "$TARBALL" > "$WORK/contents.txt"
 for f in dist/cli/create.js dist/cli/main.js template/base/gitignore template/base/.env.example \
          template/base/.github/workflows/tests.yml template/base/schemas/api.schema.json template/examples/env; do
-  tar -tzf "$TARBALL" | grep -qx "package/$f" || { echo "missing from the package: $f"; exit 1; }
+  grep -qx "package/$f" "$WORK/contents.txt" || { echo "missing from the package: $f"; exit 1; }
 done
-if tar -tzf "$TARBALL" | grep -qE '^package/(src|test)/'; then echo "source or tests leaked into the package"; exit 1; fi
+if grep -qE '^package/(src|test)/' "$WORK/contents.txt"; then echo "source or tests leaked into the package"; exit 1; fi
 
 cd "$WORK"
 npm init -y >/dev/null
